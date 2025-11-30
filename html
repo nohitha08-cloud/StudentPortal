@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CoursePortal — Educator & Student Portals (Modals)</title>
+  <meta name="description" content="CoursePortal demo — separate educator & student portals, single auth, seeded data, modal nodal UI." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+
+    
+    <section id="auth" aria-label="Authentication">
+      <aside class="promo card" aria-hidden="false">
+        <div class="brand">CoursePortal</div>
+        <div class="lead">Practical online course platform — educator and student portals with modal workflows.</div>
+        <ul class="small">
+          <li>Single sign-in page — students and educators share data.</li>
+          <li>Educator: create courses, assignments, grade students in modals.</li>
+          <li>Student: enroll, submit assignments (file+text) via nodal modals.</li>
+        </ul>
+        <div style="margin-top:12px" class="small">Seeded demo accounts:</div>
+        <div style="margin-top:8px" class="small">
+          <strong>Educators</strong>: instructor@example.com / instructor, rajesh@example.com / instructor2<br>
+          <strong>Students</strong>:amit@student.com / student123, nisha@student.com / student123, raj@student.com / student123, 2400030911@kluniversity.in / student12, 2400031021@kluniversity.in / student123, 2400039004@kluniversity.in / student1234
+        </div>
+      </aside>
+
+      <form id="auth-form" class="card" aria-label="Login or signup form" autocomplete="on">
+        <h2 id="auth-title">Login</h2>
+
+        <div class="form-group" id="name-group" style="display:none">
+          <label for="name">Full name</label>
+          <input id="name" name="name" autocomplete="name" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+        </div>
+
+        <div class="form-group" id="role-group" style="display:none">
+          <label for="role">Role</label>
+          <select id="role" name="role"><option value="student">Student</option><option value="educator">Educator</option></select>
+        </div>
+
+        <div class="captcha form-group" aria-hidden="false">
+          <div class="box" id="captcha-question" aria-live="polite">?</div>
+          <input id="captcha-answer" inputmode="numeric" aria-label="Captcha answer" placeholder="Answer" />
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+          <button id="submit-btn" class="btn primary">Login</button>
+          <button id="toggle-btn" type="button" class="btn ghost">Create account</button>
+          <button id="demo-btn" type="button" class="btn tertiary">Use demo</button>
+        </div>
+
+        <div style="margin-top:10px" class="small">Data (and your session) is persisted in your browser using <code>localStorage</code>. Use Reset inside the portal to clear all data.</div>
+      </form>
+    </section>
+
+    
+    <section id="portal" class="hidden" aria-label="Course portal">
+      <aside class="sidebar" role="navigation" aria-label="Main navigation">
+        <div class="logo">CoursePortal</div>
+        <div class="user small muted" style="margin-bottom:12px">Signed in as <strong id="user-name"></strong><div class="meta" id="user-role"></div></div>
+
+        
+        <nav id="nav-educator" class="nav" style="display:none" aria-label="Educator navigation">
+          <a href="#" data-view="edu-dashboard" class="active">Dashboard</a>
+          <a href="#" data-view="edu-courses">My Courses</a>
+          <a href="#" data-view="edu-create">Create Course</a>
+          <a href="#" data-view="edu-assignments">Assignments</a>
+          <a href="#" data-view="edu-students">Students</a>
+          <a href="#" data-view="edu-profile">Profile</a>
+        </nav>
+
+        <nav id="nav-student" class="nav" style="display:none" aria-label="Student navigation">
+          <a href="#" data-view="stu-dashboard" class="active">Dashboard</a>
+          <a href="#" data-view="stu-catalog">Course Catalog</a>
+          <a href="#" data-view="stu-courses">My Courses</a>
+          <a href="#" data-view="stu-assignments">Assignments</a>
+          <a href="#" data-view="stu-profile">Profile</a>
+        </nav>
+
+        <div class="sidebar .footer">
+          <button id="reset-btn" class="btn ghost">Reset Data</button>
+          <button id="logout-btn" class="btn danger">Logout</button>
+        </div>
+      </aside>
+
+      <main class="main" role="main">
+        <header class="main-header">
+          <h1 id="page-title">Dashboard</h1>
+        </header>
+
+        
+        <section id="edu-dashboard" class="card view" style="display:none">
+          <h2>Instructor Dashboard</h2>
+          <div class="main-grid" style="margin-top:12px">
+            <div class="card stat"><div class="small">Courses Created</div><div id="stat-edu-courses" style="font-weight:800;font-size:22px">0</div></div>
+            <div class="card stat"><div class="small">Students Enrolled</div><div id="stat-edu-students" style="font-weight:800;font-size:22px">0</div></div>
+            <div class="card stat"><div class="small">Pending Submissions</div><div id="stat-edu-pending" style="font-weight:800;font-size:22px">0</div></div>
+          </div>
+          <div style="margin-top:12px" class="card">
+            <h3>Recent Activity</h3>
+            <div id="edu-activity" class="list"></div>
+          </div>
+        </section>
+
+        <section id="edu-courses" class="card view" style="display:none">
+          <h2>My Courses</h2>
+          <div id="edu-courses-list" class="list"></div>
+        </section>
+
+        <section id="edu-create" class="card view" style="display:none">
+          <h2>Create Course</h2>
+          <label>Title</label><input id="create-title" />
+          <label>Subject</label><input id="create-subject" placeholder="e.g. Web Development" />
+          <label>Description</label><textarea id="create-desc"></textarea>
+          <label>Materials (notes / links)</label><textarea id="create-materials"></textarea>
+          <div style="margin-top:10px" class="flex"><button id="create-course-btn" class="btn primary">Save Course</button><button id="clear-create" class="btn ghost">Clear</button></div>
+        </section>
+
+        <section id="edu-assignments" class="card view" style="display:none">
+          <h2>Assignments</h2>
+          <div id="edu-assign-list" class="list"></div>
+        </section>
+
+        <section id="edu-students" class="card view" style="display:none">
+          <h2>Students</h2>
+          <div id="edu-students-list" class="list"></div>
+        </section>
+
+        <section id="edu-profile" class="card view" style="display:none">
+          <h2>Profile</h2>
+          <p><strong id="profile-name-edu"></strong></p>
+          <p class="small" id="profile-email-edu"></p>
+          <p class="small" id="profile-bio-edu"></p>
+        </section>
+
+        <section id="stu-dashboard" class="card view" style="display:none">
+          <h2>Student Dashboard</h2>
+          <div class="main-grid" style="margin-top:12px">
+            <div class="card stat"><div class="small">Enrolled</div><div id="stat-stu-enrolled" style="font-weight:800;font-size:22px">0</div></div>
+            <div class="card stat"><div class="small">Open Assignments</div><div id="stat-stu-open" style="font-weight:800;font-size:22px">0</div></div>
+            <div class="card stat"><div class="small">Average Grade</div><div id="stat-stu-grade" style="font-weight:800;font-size:22px">—</div></div>
+          </div>
+          <div style="margin-top:12px" class="card">
+            <h3>Upcoming</h3>
+            <div id="stu-upcoming" class="list"></div>
+          </div>
+        </section>
+
+        <section id="stu-catalog" class="card view" style="display:none">
+          <h2>Course Catalog</h2>
+          <div id="catalog-list" class="list"></div>
+        </section>
+
+        <section id="stu-courses" class="card view" style="display:none">
+          <h2>My Courses</h2>
+          <div id="stu-courses-list" class="list"></div>
+        </section>
+
+        <section id="stu-assignments" class="card view" style="display:none">
+          <h2>Assignments</h2>
+          <div id="stu-assign-list" class="list"></div>
+        </section>
+
+        <section id="stu-profile" class="card view" style="display:none">
+          <h2>Profile</h2>
+          <p><strong id="profile-name-stu"></strong></p>
+          <p class="small" id="profile-email-stu"></p>
+          <p class="small" id="profile-bio-stu"></p>
+        </section>
+
+      </main>
+    </section>
+
+    
+    <div id="modal-root" aria-live="polite"></div>
+
+ 
+    <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
